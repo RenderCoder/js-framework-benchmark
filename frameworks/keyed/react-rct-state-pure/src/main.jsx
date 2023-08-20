@@ -101,7 +101,7 @@ class Jumbotron extends Component {
 
 function Main() {
   const dataLength = state$.useSelector(() => manager.dataLength);
-  // console.log('#dataLength', dataLength)
+  // console.log("#dataLength", dataLength);
 
   const $rows = useMemo(
     () =>

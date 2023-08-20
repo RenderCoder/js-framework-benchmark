@@ -1,13 +1,12 @@
 import { observable } from "rct-state";
-import { Seq, List } from "immutable";
 import { buildData } from "./data";
 interface State {
-  data: List<Array<{ id: number; label: string }>>;
+  data: Array<{ id: number; label: string }>;
   selectId: number;
 }
 
 const initialState: State = {
-  data: List([]),
+  data: [],
   selectId: -1,
 };
 
@@ -15,7 +14,7 @@ class StateManager {
   state$ = observable(initialState);
 
   get dataLength(): number {
-    return this.state$.__immutable__.get("data").size;
+    return this.state$.data.get().length;
   }
 
   create = {
@@ -35,16 +34,15 @@ class StateManager {
 
   add = () => {
     const appendData = buildData(1000);
-    this.state$.data.set(
-      this.state$.__immutable__.get("data").concat(appendData)
-    );
+    this.state$.data.set(this.state$.data.get().concat(appendData));
   };
 
   update = () => {
-    const dataLength = this.dataLength;
+    const data = this.state$.data.get();
+    const dataLength = data.length;
     this.state$.batch(() => {
       for (let i = 0; i < dataLength; i += 10) {
-        const r = this.state$.data[i].get();
+        const r = data[i];
         this.state$.data[i].set({ id: r.id, label: r.label + " !!!" });
       }
     });
@@ -53,7 +51,7 @@ class StateManager {
   clear = () => {
     this.state$.batch(() => {
       this.state$.selectId.set(0);
-      this.state$.data.set(List([]));
+      this.state$.data.set([]);
     });
   };
 
@@ -71,14 +69,16 @@ class StateManager {
   };
 
   remove = (id: number) => {
+    // console.log("#remove", id);
     this.state$.batch(() => {
       this.state$.data.set(
-        this.state$.__immutable__.get("data").filter((item) => item.id !== id)
+        this.state$.data.get().filter((item) => item.id !== id)
       );
     });
   };
 
   select = (id: number) => {
+    // console.log("#select id", id);
     this.state$.selectId.set(id);
   };
 }
@@ -87,5 +87,3 @@ export const manager = new StateManager();
 export const state$ = manager.state$;
 // @ts-ignore
 window.state$ = state$;
-// @ts-ignore
-window.Seq = Seq;
